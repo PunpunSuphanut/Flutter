@@ -1,8 +1,9 @@
 workflows:
-  ios_android_workflow:
-    name: Build iOS & Android
-    instance_type: mac_mini_m1
+  build_ios_android:
+    name: Build iOS and Android
     max_build_duration: 60
+    instance_type: mac_mini_m1
+
     environment:
       flutter: stable
       xcode: latest
@@ -10,16 +11,20 @@ workflows:
       vars:
         BUNDLE_ID: "com.punpun.wifibutton"
         APP_NAME: "WiFiButtonSender"
+
     scripts:
       - name: Install dependencies
         script: |
           flutter pub get
+
       - name: Build Android APK
         script: |
           flutter build apk --release
-      - name: Build iOS IPA
+
+      - name: Build iOS (no code signing)
         script: |
           flutter build ios --release --no-codesign
+
     artifacts:
       - build/app/outputs/flutter-apk/app-release.apk
       - build/ios/iphoneos/*.ipa
