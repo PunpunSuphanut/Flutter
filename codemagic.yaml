@@ -1,38 +1,28 @@
 workflows:
-  build_ios_android:
-    name: Build iOS with xcodebuild
-        script: |
-          flutter build ios --release --no-codesign
-          xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release -sdk iphoneos -archivePath build/Runner.xcarchive archive
-          xcodebuild -exportArchive -archivePath build/Runner.xcarchive -exportOptionsPlist ios/ExportOptions.plist -exportPath build/ios/ipa
-
+  build-ios-android:
+    name: Build iOS and Android
+    instance_type: mac_mini_m2
+    max_build_duration: 60
     environment:
       flutter: stable
       xcode: latest
-      cocoapods: default
-      vars:
-        BUNDLE_ID: "com.punpun.wifibutton"
-        APP_NAME: "WiFiButtonSender"
-
     scripts:
       - name: Install dependencies
         script: |
           flutter pub get
-
       - name: Install CocoaPods
         script: |
           cd ios
           pod install
           cd ..
-
       - name: Build Android APK
         script: |
           flutter build apk --release
-
-      - name: Build iOS (no code signing)
+      - name: Build iOS
         script: |
           flutter build ios --release --no-codesign
-
+          xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release -sdk iphoneos -archivePath build/Runner.xcarchive archive
+          xcodebuild -exportArchive -archivePath build/Runner.xcarchive -exportOptionsPlist ios/ExportOptions.plist -exportPath build/ios/ipa
     artifacts:
       - build/app/outputs/flutter-apk/app-release.apk
-      - build/ios/iphoneos/*.ipa
+      - build/ios/ipa/*.ipa
